@@ -1,0 +1,17 @@
+pub mod backups;
+pub mod design_system;
+pub mod diagrams;
+pub mod events;
+pub mod filesystem;
+pub mod git;
+pub mod memory;
+pub mod notes;
+pub mod projects;
+pub mod providers;
+pub mod quality;
+pub mod security;
+pub mod security_reports;
+pub mod sessions;
+pub mod shell;
+pub mod tasks;
+pub mod terminal;
