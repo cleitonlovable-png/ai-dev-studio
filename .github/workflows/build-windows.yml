@@ -7,6 +7,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -54,3 +57,21 @@ jobs:
           name: ai-dev-studio-exe
           path: src-tauri/target/release/*.exe
           if-no-files-found: ignore
+
+      # Artifacts do Actions ficam em Azure Blob Storage, que nem sempre
+      # e acessivel por fora do GitHub (ex: proxies corporativos). Uma
+      # GitHub Release publica o arquivo direto no dominio do GitHub,
+      # entao ele fica baixavel por qualquer ferramenta que acesse
+      # github.com normalmente. Cada execucao sobrescreve a tag "latest".
+      - name: Publicar GitHub Release com os instaladores
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "AI Dev Studio — build automatico"
+          body: "Build automatico gerado pelo GitHub Actions a partir do commit ${{ github.sha }}."
+          make_latest: true
+          files: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
