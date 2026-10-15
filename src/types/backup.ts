@@ -16,6 +16,10 @@ export interface Backup {
   createdAt: string;
 }
 
+export interface BackupWithProject extends Backup {
+  projectName: string;
+}
+
 export interface BackupSettings {
   projectId: number;
   enabled: boolean;

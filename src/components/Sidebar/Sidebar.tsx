@@ -14,6 +14,10 @@ interface SidebarProps {
   onCreateProject: (input: CreateProjectInput) => Promise<void>;
   onCreateProjectFromScratch: (input: CreateProjectFromScratchInput) => Promise<void>;
   onOpenSecurityReports: () => void;
+  onOpenArchivedProjects: () => void;
+  onOpenTemplates: () => void;
+  onOpenBackupSync: () => void;
+  onOpenGlobalSettings: () => void;
 }
 
 export function Sidebar({
@@ -23,6 +27,10 @@ export function Sidebar({
   onCreateProject,
   onCreateProjectFromScratch,
   onOpenSecurityReports,
+  onOpenArchivedProjects,
+  onOpenTemplates,
+  onOpenBackupSync,
+  onOpenGlobalSettings,
 }: SidebarProps) {
   const [query, setQuery] = useState("");
   const [openModalOpen, setOpenModalOpen] = useState(false);
@@ -102,11 +110,16 @@ export function Sidebar({
       {selectedProject && <SelectedProjectSummary project={selectedProject} />}
 
       <div className="space-y-0.5 border-t border-border-subtle p-2">
-        <SidebarFooterItem icon={<Archive size={16} />} label="Projetos Arquivados" badge={archivedCount} />
-        <SidebarFooterItem icon={<LayoutTemplate size={16} />} label="Modelos de Projeto" />
-        <SidebarFooterItem icon={<HardDriveDownload size={16} />} label="Backup e Sincronização" />
+        <SidebarFooterItem
+          icon={<Archive size={16} />}
+          label="Projetos Arquivados"
+          badge={archivedCount}
+          onClick={onOpenArchivedProjects}
+        />
+        <SidebarFooterItem icon={<LayoutTemplate size={16} />} label="Modelos de Projeto" onClick={onOpenTemplates} />
+        <SidebarFooterItem icon={<HardDriveDownload size={16} />} label="Backup e Sincronização" onClick={onOpenBackupSync} />
         <SidebarFooterItem icon={<ShieldAlert size={16} />} label="Relatórios de Segurança" onClick={onOpenSecurityReports} />
-        <SidebarFooterItem icon={<Settings size={16} />} label="Configuracoes" />
+        <SidebarFooterItem icon={<Settings size={16} />} label="Configuracoes" onClick={onOpenGlobalSettings} />
       </div>
 
       <div className="mx-2 mb-2 rounded-card border border-border-subtle bg-base-850 p-3 text-center">

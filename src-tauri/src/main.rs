@@ -20,7 +20,54 @@ use std::sync::{Arc, Mutex};
 use tauri::Manager;
 use terminal::TerminalRegistry;
 
+/// Builds de release rodam com `windows_subsystem = "windows"` (acima),
+/// o que evita a janela de console preta por tras do app — mas isso
+/// tambem significa que o processo nao tem NENHUM console anexado. O
+/// `portable-pty` (usado para abrir o terminal e lancar o Codex/Claude/
+/// Ollama) depende da API ConPTY do Windows, que por sua vez precisa de
+/// um console valido para duplicar handles ao criar o pseudo-console. Sem
+/// esse console, a chamada de spawn do PTY FICA PENDURADA
+/// indefinidamente (nunca retorna erro, nunca retorna sucesso) — e como a
+/// criacao do PTY acontece dentro do comando Tauri chamado pelo frontend,
+/// isso trava a chamada de IPC esperando a resposta para sempre, o que o
+/// usuario sente como "o app travou" ao clicar para iniciar uma IA.
+///
+/// A correcao padrao para apps GUI do Windows que usam PTYs (usada por
+/// projetos como o WezTerm) e alocar um console "escondido" assim que o
+/// processo inicia: isso da ao ConPTY um console valido para trabalhar,
+/// sem nunca mostrar uma janela preta ao usuario (o console e ocultado
+/// logo em seguida). Isso NAO afeta builds de debug (`npm run tauri dev`),
+/// que ja rodam com um console visivel por padrao — por isso o bug nunca
+/// apareceu nos testes anteriores, so no `.exe` compilado.
+#[cfg(target_os = "windows")]
+fn ensure_hidden_console() {
+    use windows_sys::Win32::System::Console::{AllocConsole, GetConsoleWindow};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_HIDE};
+
+    unsafe {
+        // Se o processo ja tem um console (build de debug, ou lancado a
+        // partir de um terminal), nao faz nada.
+        if !GetConsoleWindow().is_null() {
+            return;
+        }
+        // AllocConsole cria um console novo e o anexa a este processo.
+        // Se falhar (ex: ja existe um, condicao de corrida improvavel),
+        // apenas ignora — nao e fatal, so reduz a chance do PTY funcionar.
+        if AllocConsole() != 0 {
+            let hwnd = GetConsoleWindow();
+            if !hwnd.is_null() {
+                ShowWindow(hwnd, SW_HIDE);
+            }
+        }
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn ensure_hidden_console() {}
+
 fn main() {
+    ensure_hidden_console();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
@@ -84,6 +131,7 @@ fn main() {
             commands::backups::get_backup_settings,
             commands::backups::update_backup_settings,
             commands::backups::list_backups,
+            commands::backups::list_all_backups,
             commands::backups::create_backup_now,
             commands::backups::restore_backup,
             commands::backups::delete_backup,

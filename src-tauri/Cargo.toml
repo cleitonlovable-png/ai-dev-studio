@@ -24,6 +24,12 @@ sha2 = "0.10"
 hex = "0.4"
 regex = "1"
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52", features = [
+    "Win32_System_Console",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
 [features]
 # Isso ativa o modo de "sidecar" de desenvolvimento do Tauri (hot-reload).
 custom-protocol = ["tauri/custom-protocol"]

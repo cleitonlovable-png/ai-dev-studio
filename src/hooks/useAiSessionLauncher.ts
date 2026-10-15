@@ -6,6 +6,22 @@ import { startAiProvider } from "@/services/ai";
 import { startSession } from "@/services/sessions";
 import { createBackupNow, getBackupSettings } from "@/services/backups";
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+}
+
 interface PendingSnapshotConfirm {
   providerId: AiProviderId;
   label: string;
@@ -41,7 +57,14 @@ export function useAiSessionLauncher(project: Project | null, onStarted: (sessio
         }
       }
 
-      const ptySessionId = await startAiProvider(project.path!, providerId);
+      // Nunca deixa a UI "pendurada" para sempre: se o backend nao
+      // responder em 20s (ex: travamento na criacao do PTY), mostra um
+      // erro em vez de deixar o botao girando pra sempre.
+      const ptySessionId = await withTimeout(
+        startAiProvider(project.path!, providerId),
+        20000,
+        `Tempo esgotado ao iniciar ${label}. Verifique se o comando "${providerId}" está instalado e funcionando no terminal do sistema.`
+      );
 
       let dbSessionId: number | null = null;
       try {

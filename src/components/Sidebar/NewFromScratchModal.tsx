@@ -5,11 +5,19 @@ import type { CreateProjectFromScratchInput } from "@/services/projects";
 interface NewFromScratchModalProps {
   onClose: () => void;
   onCreate: (input: CreateProjectFromScratchInput) => Promise<void>;
+  /** Pre-preenche a partir de um modelo escolhido em "Modelos de Projeto". */
+  initialName?: string;
+  initialDescription?: string;
 }
 
-export function NewFromScratchModal({ onClose, onCreate }: NewFromScratchModalProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+export function NewFromScratchModal({
+  onClose,
+  onCreate,
+  initialName = "",
+  initialDescription = "",
+}: NewFromScratchModalProps) {
+  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(initialDescription);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

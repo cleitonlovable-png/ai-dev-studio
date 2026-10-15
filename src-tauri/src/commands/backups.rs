@@ -143,6 +143,49 @@ pub fn list_backups(state: State<DbState>, project_id: i64) -> Result<Vec<Backup
     Ok(items)
 }
 
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BackupWithProject {
+    #[serde(flatten)]
+    pub backup: Backup,
+    pub project_name: String,
+}
+
+/// Lista os backups mais recentes de TODOS os projetos, mais novos primeiro —
+/// usado pela view global "Backup e Sincronização" na barra lateral, que nao
+/// tem um projeto selecionado como contexto.
+#[tauri::command]
+pub fn list_all_backups(state: State<DbState>, limit: i64) -> Result<Vec<BackupWithProject>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let sql = format!(
+        "SELECT {}, p.name AS project_name
+         FROM backups b
+         JOIN projects p ON p.id = b.project_id
+         ORDER BY b.created_at DESC
+         LIMIT ?1",
+        SELECT_BACKUP_COLUMNS
+            .split(", ")
+            .map(|c| format!("b.{c}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+    let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map(params![limit], |row| {
+            Ok(BackupWithProject {
+                backup: row_to_backup(row)?,
+                project_name: row.get("project_name")?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    let mut items = Vec::new();
+    for row in rows {
+        items.push(row.map_err(|e| e.to_string())?);
+    }
+    Ok(items)
+}
+
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBackupInput {
