@@ -14,7 +14,7 @@ export function WorkspaceTabs({
   disabledReason = "Disponivel em uma proxima fase",
 }: WorkspaceTabsProps) {
   return (
-    <div className="flex gap-1 border-b border-border-subtle px-6">
+    <div className="flex gap-1 overflow-x-auto whitespace-nowrap border-b border-border-subtle px-6">
       {tabs.map((tab) => {
         const disabled = disabledTabs.includes(tab);
         const isActive = tab === active;
@@ -24,7 +24,7 @@ export function WorkspaceTabs({
             disabled={disabled}
             onClick={() => !disabled && onChange(tab)}
             title={disabled ? disabledReason : undefined}
-            className={`relative px-3 py-3 text-sm transition-colors ${
+            className={`relative shrink-0 px-3 py-3 text-sm transition-colors ${
               disabled
                 ? "cursor-not-allowed text-muted/40"
                 : isActive

@@ -43,7 +43,7 @@ export function useAiSessionLauncher(project: Project | null, onStarted: (sessio
   async function doLaunch(providerId: AiProviderId, label: string, version: string | null, withSnapshot: boolean) {
     if (!project) return;
     if (!project.path) {
-      setError("Vincule uma pasta ao projeto antes de iniciar uma IA (aba Configurações).");
+      setError("Vincule uma pasta ao projeto antes de iniciar uma IA.");
       return;
     }
     setStartingId(providerId);

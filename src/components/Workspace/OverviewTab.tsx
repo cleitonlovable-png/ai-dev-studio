@@ -16,6 +16,7 @@ interface OverviewTabProps {
   onOpenSessions?: () => void;
   onOpenQuality?: () => void;
   onStartAiSession: (session: ActiveAiSession) => void;
+  onLinkFolder?: (path: string) => Promise<unknown>;
 }
 
 const PROVIDER_LABEL: Record<string, string> = {
@@ -34,7 +35,7 @@ function timeAgo(iso: string): string {
   return `há ${Math.floor(hours / 24)}d`;
 }
 
-export function OverviewTab({ project, onOpenTasks, onOpenSessions, onOpenQuality, onStartAiSession }: OverviewTabProps) {
+export function OverviewTab({ project, onOpenTasks, onOpenSessions, onOpenQuality, onStartAiSession, onLinkFolder }: OverviewTabProps) {
   const { tasks, toggleDone } = useTasks(project.id);
   const { lastFinished } = useSessions(project.id);
   const { providers } = useAiProviders();
@@ -131,6 +132,7 @@ export function OverviewTab({ project, onOpenTasks, onOpenSessions, onOpenQualit
           providers={providers}
           onClose={() => setContinueOpen(false)}
           onStarted={onStartAiSession}
+          onLinkFolder={onLinkFolder}
         />
       )}
     </div>

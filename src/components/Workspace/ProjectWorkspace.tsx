@@ -114,6 +114,7 @@ export function ProjectWorkspace({
               onOpenSessions={() => setActiveTab("Sessões")}
               onOpenQuality={() => setActiveTab("Qualidade")}
               onStartAiSession={onStartAiSession}
+              onLinkFolder={onLinkFolder}
             />
           ) : activeTab === "Tarefas" ? (
             <TasksTab project={project} />

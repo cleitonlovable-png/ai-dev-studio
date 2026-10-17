@@ -8,6 +8,7 @@ import { useSessions } from "@/hooks/useSessions";
 import { useTasks } from "@/hooks/useTasks";
 import { useGitStatus } from "@/hooks/useGitStatus";
 import { useAiSessionLauncher } from "@/hooks/useAiSessionLauncher";
+import { pickProjectFolder } from "@/services/filesystem";
 import { SnapshotConfirmModal } from "./SnapshotConfirmModal";
 
 const PROVIDER_LABEL: Record<string, string> = {
@@ -31,9 +32,10 @@ interface ContinueProjectModalProps {
   providers: AiProviderStatus[];
   onClose: () => void;
   onStarted: (session: ActiveAiSession) => void;
+  onLinkFolder?: (path: string) => Promise<unknown>;
 }
 
-export function ContinueProjectModal({ project, providers, onClose, onStarted }: ContinueProjectModalProps) {
+export function ContinueProjectModal({ project, providers, onClose, onStarted, onLinkFolder }: ContinueProjectModalProps) {
   const { memories } = useMemories(project.id);
   const { lastFinished } = useSessions(project.id);
   const { tasks } = useTasks(project.id);
@@ -47,6 +49,24 @@ export function ContinueProjectModal({ project, providers, onClose, onStarted }:
       onStarted(session);
       onClose();
     });
+
+  const [linking, setLinking] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  async function handleLinkFolder() {
+    if (!onLinkFolder) return;
+    const picked = await pickProjectFolder();
+    if (!picked) return;
+    setLinking(true);
+    setLinkError(null);
+    try {
+      await onLinkFolder(picked);
+    } catch (err) {
+      setLinkError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLinking(false);
+    }
+  }
 
   const pendingTasks = tasks.filter((t) => t.status !== "done");
 
@@ -131,14 +151,30 @@ export function ContinueProjectModal({ project, providers, onClose, onStarted }:
             ))}
           </div>
 
-          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+          {!project.path && onLinkFolder && (
+            <div className="mt-3 rounded-lg border border-dashed border-warning/40 bg-warning/5 p-3">
+              <p className="text-xs text-slate-300">
+                Este projeto ainda não tem uma pasta. Vincule uma pasta do seu computador para poder iniciar uma IA.
+              </p>
+              <button
+                onClick={handleLinkFolder}
+                disabled={linking}
+                className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-hover disabled:opacity-60"
+              >
+                {linking ? "Vinculando..." : "Vincular pasta agora"}
+              </button>
+              {linkError && <p className="mt-2 text-xs text-danger">{linkError}</p>}
+            </div>
+          )}
+          {error && project.path && <p className="mt-2 text-xs text-danger">{error}</p>}
+          {error && !project.path && !onLinkFolder && <p className="mt-2 text-xs text-danger">{error}</p>}
 
           <div className="mt-4 flex justify-end gap-2">
             <button onClick={onClose} className="rounded-lg px-3 py-2 text-sm text-muted hover:text-slate-200">
               Cancelar
             </button>
             <button
-              disabled={!selectedProvider || startingId !== null}
+              disabled={!selectedProvider || startingId !== null || !project.path}
               onClick={() => {
                 if (!selectedProvider) return;
                 const provider = providers.find((p) => p.id === selectedProvider);
