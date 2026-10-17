@@ -32,8 +32,24 @@ jobs:
       - name: Instalar dependencias do frontend
         run: npm ci
 
+      # Cada build ganha um numero de versao maior que o anterior
+      # (0.1.<numero da execucao>). E isso que o atualizador automatico
+      # compara para saber se existe versao nova.
+      - name: Definir versao do app
+        shell: pwsh
+        run: |
+          $v = "0.1.${{ github.run_number }}"
+          $path = "src-tauri/tauri.conf.json"
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+          $json.version = $v
+          $json | ConvertTo-Json -Depth 20 | Set-Content $path -Encoding utf8
+          "APP_VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Build do AI Dev Studio (.exe + instaladores)
         shell: pwsh
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           npm run tauri build 2>&1 | Tee-Object -FilePath build.log
           exit $LASTEXITCODE
@@ -82,6 +98,25 @@ jobs:
           path: src-tauri/target/release/*.exe
           if-no-files-found: ignore
 
+      # latest.json e o arquivo que o app instalado consulta para saber se
+      # existe versao nova (versao, link do instalador e assinatura).
+      - name: Gerar latest.json do atualizador
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem "src-tauri/target/release/bundle/nsis/*-setup.exe" | Select-Object -First 1
+          $sig = Get-Content "$($exe.FullName).sig" -Raw
+          $assetName = $exe.Name -replace ' ', '.'
+          $url = "https://github.com/${{ github.repository }}/releases/download/latest/$assetName"
+          $manifest = [ordered]@{
+            version  = $env:APP_VERSION
+            notes    = "Atualizacao automatica do commit ${{ github.sha }}"
+            pub_date = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            platforms = [ordered]@{
+              "windows-x86_64" = [ordered]@{ signature = $sig.Trim(); url = $url }
+            }
+          }
+          $manifest | ConvertTo-Json -Depth 10 | Set-Content "latest.json" -Encoding utf8
+
       # Artifacts do Actions ficam em Azure Blob Storage, que nem sempre
       # e acessivel por fora do GitHub (ex: proxies corporativos). Uma
       # GitHub Release publica o arquivo direto no dominio do GitHub,
@@ -97,5 +132,7 @@ jobs:
           files: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.sig
+            latest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

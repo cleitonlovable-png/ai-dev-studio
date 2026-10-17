@@ -1,3 +1,5 @@
+import { useAppUpdater } from "@/hooks/useAppUpdater";
+import { UpdateBanner } from "@/components/Layout/UpdateBanner";
 import { TopBar } from "@/components/Layout/TopBar";
 import { StatusBar } from "@/components/Layout/StatusBar";
 import { Sidebar } from "@/components/Sidebar/Sidebar";
@@ -40,6 +42,7 @@ export default function App() {
     archiveProjectById,
     updateProjectFields,
   } = useProjects();
+  const updater = useAppUpdater();
   const [view, setView] = useState<View>("project");
   const [emptyStateModalOpen, setEmptyStateModalOpen] = useState(false);
   const [templateModal, setTemplateModal] = useState<ProjectTemplate | null>(null);
@@ -57,6 +60,8 @@ export default function App() {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-base-950">
       <TopBar onOpenSecurityReports={() => setView("security-reports")} />
+
+      <UpdateBanner state={updater.state} onInstall={updater.installNow} onDismiss={updater.dismiss} />
 
       <div className="flex min-h-0 flex-1">
         <Sidebar
@@ -152,7 +157,17 @@ export default function App() {
         )}
       </div>
 
-      <StatusBar />
+      <StatusBar
+        version={updater.version}
+        checkLabel={
+          updater.state.kind === "checking"
+            ? "Verificando…"
+            : updater.state.kind === "uptodate"
+              ? "Você está na versão mais recente"
+              : "Verificar atualizações"
+        }
+        onCheckUpdates={updater.checkNow}
+      />
 
       {emptyStateModalOpen && (
         <NewProjectModal

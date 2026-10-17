@@ -10,11 +10,20 @@ const QUOTES = [
 // polimento, sem exigir estado ou dependencia nova.
 const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
-export function StatusBar() {
+interface StatusBarProps {
+  version: string | null;
+  checkLabel: string;
+  onCheckUpdates: () => void;
+}
+
+export function StatusBar({ version, checkLabel, onCheckUpdates }: StatusBarProps) {
   return (
     <footer className="flex h-7 shrink-0 items-center justify-between border-t border-border-subtle bg-base-900 px-4 text-[11px] text-muted">
       <div className="flex items-center gap-3">
-        <span>v0.1.0</span>
+        <span>v{version ?? "…"}</span>
+        <button onClick={onCheckUpdates} className="hover:text-slate-200">
+          {checkLabel}
+        </button>
         <span className="flex items-center gap-1 text-success">
           <CheckCircle2 size={11} /> Tudo funcionando
         </span>

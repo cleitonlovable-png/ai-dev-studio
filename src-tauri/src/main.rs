@@ -70,6 +70,8 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             // Banco de dados fica em <app_data_dir>/aidevstudio.db
             // (no Windows isso cai em algo como
