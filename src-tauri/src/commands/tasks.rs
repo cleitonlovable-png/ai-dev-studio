@@ -41,7 +41,7 @@ fn row_to_task(row: &rusqlite::Row) -> rusqlite::Result<Task> {
 const SELECT_TASK_COLUMNS: &str =
     "id, project_id, title, description, priority, status, due_date, created_at, updated_at";
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_tasks(state: State<DbState>, project_id: i64) -> Result<Vec<Task>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -62,7 +62,7 @@ pub fn list_tasks(state: State<DbState>, project_id: i64) -> Result<Vec<Task>, S
     Ok(tasks)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_task(state: State<DbState>, input: CreateTaskInput) -> Result<Task, String> {
     if input.title.trim().is_empty() {
         return Err("O titulo da tarefa nao pode ser vazio.".into());
@@ -91,7 +91,7 @@ pub fn create_task(state: State<DbState>, input: CreateTaskInput) -> Result<Task
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_task(state: State<DbState>, input: UpdateTaskInput) -> Result<Task, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -116,7 +116,7 @@ pub fn update_task(state: State<DbState>, input: UpdateTaskInput) -> Result<Task
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn toggle_task_status(state: State<DbState>, id: i64) -> Result<Task, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 
@@ -138,7 +138,7 @@ pub fn toggle_task_status(state: State<DbState>, id: i64) -> Result<Task, String
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_task(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM tasks WHERE id = ?1", params![id])

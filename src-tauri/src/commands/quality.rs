@@ -25,7 +25,7 @@ fn row_to_check(row: &rusqlite::Row) -> rusqlite::Result<ProjectCheck> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn detect_project_checks(state: State<DbState>, project_id: i64) -> Result<Vec<DetectedCheck>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let path: String = conn
@@ -56,7 +56,7 @@ pub struct RunCheckInput {
     pub command: String,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn run_project_check(app: AppHandle, state: State<DbState>, input: RunCheckInput) -> Result<ProjectCheck, String> {
     let project_path: String = {
         let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -128,7 +128,7 @@ pub fn run_project_check(app: AppHandle, state: State<DbState>, input: RunCheckI
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_check_history(state: State<DbState>, project_id: i64) -> Result<Vec<ProjectCheck>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql =

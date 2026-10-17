@@ -31,7 +31,7 @@ fn row_to_design_system(row: &rusqlite::Row) -> rusqlite::Result<DesignSystem> {
 /// Busca o design system do projeto. Se ainda nao existir nenhum
 /// registro (projeto novo), cria um vazio na hora e retorna — assim o
 /// frontend sempre recebe um objeto valido para editar, nunca null.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_design_system(state: State<DbState>, project_id: i64) -> Result<DesignSystem, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!("SELECT {SELECT_DS_COLUMNS} FROM design_systems WHERE project_id = ?1");
@@ -57,7 +57,7 @@ pub fn get_design_system(state: State<DbState>, project_id: i64) -> Result<Desig
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_design_system(
     state: State<DbState>,
     input: UpdateDesignSystemInput,

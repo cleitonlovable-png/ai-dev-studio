@@ -35,7 +35,7 @@ fn row_to_memory(row: &rusqlite::Row) -> rusqlite::Result<Memory> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_memories(state: State<DbState>, project_id: i64) -> Result<Vec<Memory>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -53,7 +53,7 @@ pub fn list_memories(state: State<DbState>, project_id: i64) -> Result<Vec<Memor
     Ok(items)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_memory(state: State<DbState>, input: CreateMemoryInput) -> Result<Memory, String> {
     if input.title.trim().is_empty() {
         return Err("O título da memória não pode ser vazio.".into());
@@ -75,7 +75,7 @@ pub fn create_memory(state: State<DbState>, input: CreateMemoryInput) -> Result<
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_memory(state: State<DbState>, input: UpdateMemoryInput) -> Result<Memory, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -91,7 +91,7 @@ pub fn update_memory(state: State<DbState>, input: UpdateMemoryInput) -> Result<
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_memory(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM project_memories WHERE id = ?1", params![id])

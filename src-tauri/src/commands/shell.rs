@@ -3,7 +3,7 @@ use std::process::Command;
 
 /// Abre a pasta do projeto no explorador de arquivos do sistema
 /// operacional. SAFE: apenas abre uma janela, nao modifica nada.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn open_in_file_explorer(path: String) -> Result<(), String> {
     let result = if cfg!(target_os = "windows") {
         Command::new("explorer").arg(&path).spawn()
@@ -43,7 +43,7 @@ fn find_vscode_fallback() -> Option<PathBuf> {
 /// Abre a pasta do projeto no VS Code. Tenta primeiro `code` via PATH
 /// (funciona se "Add to PATH" foi marcado na instalacao); se falhar, no
 /// Windows tambem tenta os locais de instalacao padrao antes de desistir.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn open_in_vscode(path: String) -> Result<(), String> {
     if Command::new("code").arg(&path).spawn().is_ok() {
         return Ok(());

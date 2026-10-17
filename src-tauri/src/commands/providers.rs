@@ -3,7 +3,7 @@ use crate::terminal::{self, TerminalRegistry};
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn detect_ai_providers() -> Vec<ProviderStatus> {
     providers::detect_all()
 }
@@ -12,7 +12,7 @@ pub fn detect_ai_providers() -> Vec<ProviderStatus> {
 /// mesma infraestrutura de PTY do terminal (Fase 3). Retorna um session_id
 /// que o frontend anexa a um componente de terminal, exatamente como faz
 /// com uma sessao de shell comum.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn start_ai_provider(
     app: AppHandle,
     registry: State<Arc<TerminalRegistry>>,

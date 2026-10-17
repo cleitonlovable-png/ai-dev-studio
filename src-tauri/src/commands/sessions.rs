@@ -37,7 +37,7 @@ fn row_to_session(row: &rusqlite::Row) -> rusqlite::Result<AiSession> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_sessions(state: State<DbState>, project_id: i64) -> Result<Vec<AiSession>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql =
@@ -54,7 +54,7 @@ pub fn list_sessions(state: State<DbState>, project_id: i64) -> Result<Vec<AiSes
     Ok(items)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_last_session(state: State<DbState>, project_id: i64) -> Result<Option<AiSession>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -67,7 +67,7 @@ pub fn get_last_session(state: State<DbState>, project_id: i64) -> Result<Option
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn start_session(app: AppHandle, state: State<DbState>, input: StartSessionInput) -> Result<AiSession, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -96,7 +96,7 @@ pub fn start_session(app: AppHandle, state: State<DbState>, input: StartSessionI
     Ok(session)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn finish_session(app: AppHandle, state: State<DbState>, input: FinishSessionInput) -> Result<AiSession, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -127,7 +127,7 @@ pub fn finish_session(app: AppHandle, state: State<DbState>, input: FinishSessio
 /// terminal sem querer registrar nada). Marca como finalizada mesmo
 /// assim, so que sem summary/next_step, para nao ficar "running" para
 /// sempre no historico.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn discard_session(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();

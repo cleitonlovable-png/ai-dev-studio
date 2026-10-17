@@ -2,12 +2,12 @@ use crate::terminal::{self, ShellInfo, ShellKind, TerminalRegistry};
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_shells() -> Vec<ShellInfo> {
     terminal::detect_shells()
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_terminal(
     app: AppHandle,
     registry: State<Arc<TerminalRegistry>>,
@@ -17,7 +17,7 @@ pub fn create_terminal(
     terminal::spawn_shell(app, registry.inner().clone(), &project_path, shell)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn write_terminal(
     registry: State<Arc<TerminalRegistry>>,
     session_id: String,
@@ -26,7 +26,7 @@ pub fn write_terminal(
     terminal::write(&registry, &session_id, &data)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn resize_terminal(
     registry: State<Arc<TerminalRegistry>>,
     session_id: String,
@@ -36,7 +36,7 @@ pub fn resize_terminal(
     terminal::resize(&registry, &session_id, rows, cols)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn close_terminal(registry: State<Arc<TerminalRegistry>>, session_id: String) -> Result<(), String> {
     terminal::close(&registry, &session_id)
 }

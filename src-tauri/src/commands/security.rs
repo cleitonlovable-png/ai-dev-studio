@@ -119,7 +119,7 @@ fn project_path_and_name(conn: &rusqlite::Connection, project_id: i64) -> Result
     .map_err(|_| "Projeto não encontrado.".to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn detect_security_scanners(state: State<DbState>, project_id: i64) -> Result<Vec<ScannerStatus>, String> {
     let path = {
         let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -161,7 +161,7 @@ pub fn detect_security_scanners(state: State<DbState>, project_id: i64) -> Resul
     Ok(scanners)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn run_dependency_scan(app: AppHandle, state: State<DbState>, project_id: i64) -> Result<SecurityReport, String> {
     let (path, name, tool) = {
         let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -179,7 +179,7 @@ pub fn run_dependency_scan(app: AppHandle, state: State<DbState>, project_id: i6
     fetch_report(&conn, report_id)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn run_secret_scan(app: AppHandle, state: State<DbState>, project_id: i64) -> Result<SecurityReport, String> {
     let (path, name) = {
         let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -197,7 +197,7 @@ pub fn run_secret_scan(app: AppHandle, state: State<DbState>, project_id: i64) -
 /// autorizacao para testar este alvo" na interface — `confirmed` e
 /// checado de novo aqui como segunda camada de seguranca, nunca confiando
 /// so na UI.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn start_zap_scan(target_url: String, api_key: Option<String>, confirmed: bool) -> Result<String, String> {
     if !confirmed {
         return Err("Confirmação de autorização é obrigatória antes de iniciar um scan ativo.".into());
@@ -205,12 +205,12 @@ pub fn start_zap_scan(target_url: String, api_key: Option<String>, confirmed: bo
     security::zap_scanner::start_active_scan(&target_url, api_key.as_deref())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_zap_scan_progress(zap_scan_id: String) -> Result<u32, String> {
     security::zap_scanner::get_scan_progress(&zap_scan_id)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn finish_zap_scan(app: AppHandle, state: State<DbState>, project_id: i64, target_url: String) -> Result<SecurityReport, String> {
     let findings = security::zap_scanner::fetch_alerts(&target_url)?;
 
@@ -220,7 +220,7 @@ pub fn finish_zap_scan(app: AppHandle, state: State<DbState>, project_id: i64, t
     fetch_report(&conn, report_id)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_project_security_reports(state: State<DbState>, project_id: i64) -> Result<Vec<SecurityReport>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = "SELECT id, scan_id, project_name, domain, scan_type, status,

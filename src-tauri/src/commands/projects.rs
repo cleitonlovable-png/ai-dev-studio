@@ -28,7 +28,7 @@ fn row_to_project(row: &rusqlite::Row) -> rusqlite::Result<Project> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_projects(state: State<DbState>) -> Result<Vec<Project>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
@@ -52,7 +52,7 @@ pub fn list_projects(state: State<DbState>) -> Result<Vec<Project>, String> {
     Ok(projects)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_project(
     state: State<DbState>,
     input: CreateProjectInput,
@@ -118,7 +118,7 @@ pub struct CreateProjectFromScratchInput {
 /// abas que dependem de filesystem (Terminal, Git, Arquivos, Backups,
 /// Qualidade) ficam indisponiveis no frontend até uma pasta ser
 /// vinculada via `link_project_folder`.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_project_from_scratch(
     state: State<DbState>,
     input: CreateProjectFromScratchInput,
@@ -162,7 +162,7 @@ pub struct LinkProjectFolderInput {
 /// daqui, Terminal/Git/Arquivos/Backups/Qualidade passam a funcionar
 /// normalmente. Detecta a stack na hora, igual ao fluxo de abrir um
 /// projeto existente.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn link_project_folder(
     state: State<DbState>,
     input: LinkProjectFolderInput,
@@ -205,7 +205,7 @@ pub fn link_project_folder(
     .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn touch_project_opened(app: AppHandle, state: State<DbState>, project_id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -221,7 +221,7 @@ pub fn touch_project_opened(app: AppHandle, state: State<DbState>, project_id: i
 
 /// Move o projeto para o status "archived". Nao apaga nada do banco nem
 /// do disco — so tira da lista principal (list_projects filtra archived).
-#[tauri::command]
+#[tauri::command(async)]
 pub fn archive_project(state: State<DbState>, project_id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -246,7 +246,7 @@ pub struct UpdateProjectInput {
 /// Edita os campos editáveis do projeto. O caminho (`path`) nunca é
 /// editável por aqui — mudar a pasta de um projeto é uma operação
 /// diferente (e perigosa) que não faz parte deste comando.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_project(state: State<DbState>, input: UpdateProjectInput) -> Result<Project, String> {
     if input.name.trim().is_empty() {
         return Err("O nome do projeto não pode ser vazio.".into());
@@ -284,7 +284,7 @@ pub fn update_project(state: State<DbState>, input: UpdateProjectInput) -> Resul
 /// apagar manualmente TODAS as tabelas que referenciam este projeto antes
 /// de apagar a linha de `projects` — senao o SQLite recusa o delete por
 /// violacao de chave estrangeira (isso ficava falhando em silencio antes).
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_project(state: State<DbState>, project_id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 

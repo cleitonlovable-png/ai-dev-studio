@@ -3,12 +3,12 @@ use crate::filesystem::{self, RecentFile};
 use rusqlite::params;
 use tauri::State;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_recent_files(project_path: String, limit: Option<usize>) -> Vec<RecentFile> {
     filesystem::list_recent_files(&project_path, limit.unwrap_or(10))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn count_project_files(project_path: String) -> usize {
     filesystem::count_files(&project_path)
 }
@@ -16,7 +16,7 @@ pub fn count_project_files(project_path: String) -> usize {
 /// Roda a deteccao de stack de novo para um projeto ja cadastrado e
 /// atualiza a coluna `stack`. Util quando o usuario adiciona um
 /// `package.json` depois de ja ter cadastrado a pasta, por exemplo.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn refresh_project_stack(state: State<DbState>, project_id: i64) -> Result<Project, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 

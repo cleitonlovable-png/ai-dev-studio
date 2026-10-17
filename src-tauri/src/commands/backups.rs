@@ -86,7 +86,7 @@ fn get_or_create_settings(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_backup_settings(app: AppHandle, state: State<DbState>, project_id: i64) -> Result<BackupSettings, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     get_or_create_settings(&conn, &app, project_id)
@@ -101,7 +101,7 @@ pub struct UpdateBackupSettingsInput {
     pub retention_value: i64,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_backup_settings(
     app: AppHandle,
     state: State<DbState>,
@@ -125,7 +125,7 @@ pub fn update_backup_settings(
     get_or_create_settings(&conn, &app, input.project_id)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_backups(state: State<DbState>, project_id: i64) -> Result<Vec<Backup>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -154,7 +154,7 @@ pub struct BackupWithProject {
 /// Lista os backups mais recentes de TODOS os projetos, mais novos primeiro —
 /// usado pela view global "Backup e Sincronização" na barra lateral, que nao
 /// tem um projeto selecionado como contexto.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_all_backups(state: State<DbState>, limit: i64) -> Result<Vec<BackupWithProject>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -196,7 +196,7 @@ pub struct CreateBackupInput {
     pub provider: Option<String>,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_backup_now(app: AppHandle, state: State<DbState>, input: CreateBackupInput) -> Result<Backup, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 
@@ -300,7 +300,7 @@ fn apply_retention(conn: &rusqlite::Connection, project_id: i64, keep: i64) {
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn restore_backup(app: AppHandle, state: State<DbState>, backup_id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 
@@ -339,7 +339,7 @@ pub fn restore_backup(app: AppHandle, state: State<DbState>, backup_id: i64) -> 
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_backup(state: State<DbState>, backup_id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let path: String = conn

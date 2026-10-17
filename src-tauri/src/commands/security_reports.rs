@@ -3,7 +3,7 @@ use chrono::Utc;
 use rusqlite::params;
 use tauri::State;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_security_reports(state: State<DbState>) -> Result<Vec<SecurityReport>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
 
@@ -57,7 +57,7 @@ pub fn list_security_reports(state: State<DbState>) -> Result<Vec<SecurityReport
     Ok(result)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_security_report(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM security_findings WHERE report_id = ?1", params![id])
@@ -70,7 +70,7 @@ pub fn delete_security_report(state: State<DbState>, id: i64) -> Result<(), Stri
 /// Atualiza o status de um finding (aberto/revisando/falso positivo/
 /// resolvido/risco aceito). NUNCA chamado automaticamente por uma IA —
 /// so o usuario, clicando explicitamente, pode marcar como resolvido.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_finding_status(state: State<DbState>, id: i64, status: String) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let resolved_at = if status == "resolved" || status == "false_positive" {

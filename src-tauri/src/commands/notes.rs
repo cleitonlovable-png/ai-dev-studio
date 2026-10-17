@@ -32,7 +32,7 @@ fn row_to_note(row: &rusqlite::Row) -> rusqlite::Result<Note> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_notes(state: State<DbState>, project_id: i64) -> Result<Vec<Note>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -50,7 +50,7 @@ pub fn list_notes(state: State<DbState>, project_id: i64) -> Result<Vec<Note>, S
     Ok(items)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_note(state: State<DbState>, input: CreateNoteInput) -> Result<Note, String> {
     if input.title.trim().is_empty() {
         return Err("O título da nota não pode ser vazio.".into());
@@ -72,7 +72,7 @@ pub fn create_note(state: State<DbState>, input: CreateNoteInput) -> Result<Note
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_note(state: State<DbState>, input: UpdateNoteInput) -> Result<Note, String> {
     if input.title.trim().is_empty() {
         return Err("O título da nota não pode ser vazio.".into());
@@ -92,7 +92,7 @@ pub fn update_note(state: State<DbState>, input: UpdateNoteInput) -> Result<Note
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_note(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM notes WHERE id = ?1", params![id])

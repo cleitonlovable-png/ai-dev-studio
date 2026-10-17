@@ -2,7 +2,7 @@ use crate::database::{DbState, ProjectEvent};
 use rusqlite::params;
 use tauri::State;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_project_events(state: State<DbState>, project_id: i64) -> Result<Vec<ProjectEvent>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn

@@ -33,7 +33,7 @@ fn row_to_diagram(row: &rusqlite::Row) -> rusqlite::Result<Diagram> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_diagrams(state: State<DbState>, project_id: i64) -> Result<Vec<Diagram>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let sql = format!(
@@ -53,7 +53,7 @@ pub fn list_diagrams(state: State<DbState>, project_id: i64) -> Result<Vec<Diagr
 
 const DEFAULT_MERMAID_SOURCE: &str = "flowchart TD\n    A[Início] --> B[Próximo passo]\n";
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_diagram(state: State<DbState>, input: CreateDiagramInput) -> Result<Diagram, String> {
     if input.title.trim().is_empty() {
         return Err("O título do diagrama não pode ser vazio.".into());
@@ -80,7 +80,7 @@ pub fn create_diagram(state: State<DbState>, input: CreateDiagramInput) -> Resul
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_diagram(state: State<DbState>, input: UpdateDiagramInput) -> Result<Diagram, String> {
     if input.title.trim().is_empty() {
         return Err("O título do diagrama não pode ser vazio.".into());
@@ -100,7 +100,7 @@ pub fn update_diagram(state: State<DbState>, input: UpdateDiagramInput) -> Resul
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_diagram(state: State<DbState>, id: i64) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM diagrams WHERE id = ?1", params![id])
