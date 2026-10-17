@@ -33,7 +33,31 @@ jobs:
         run: npm ci
 
       - name: Build do AI Dev Studio (.exe + instaladores)
-        run: npm run tauri build
+        shell: pwsh
+        run: |
+          npm run tauri build 2>&1 | Tee-Object -FilePath build.log
+          exit $LASTEXITCODE
+
+      # Se o build falhar, publica os erros do Rust como anotacoes do
+      # run (os logs brutos ficam em storage inacessivel para o Claude).
+      - name: Resumir erros do build
+        if: failure()
+        shell: pwsh
+        run: |
+          $lines = Get-Content build.log
+          $n = 0
+          for ($i = 0; $i -lt $lines.Count -and $n -lt 8; $i++) {
+            if ($lines[$i] -match '^\s*error') {
+              $end = [Math]::Min($i + 9, $lines.Count - 1)
+              $msg = ($lines[$i..$end] -join '%0A')
+              Write-Output "::error title=rust error $n::$msg"
+              $n++
+            }
+          }
+          if ($n -eq 0) {
+            $tail = ($lines | Select-Object -Last 25) -join '%0A'
+            Write-Output "::error title=build tail::$tail"
+          }
 
       # Os instaladores saem em src-tauri/target/release/bundle/.
       # Sobem como artifact do workflow, baixavel na aba Actions do repo.
