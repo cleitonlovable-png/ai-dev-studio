@@ -110,14 +110,25 @@ pub fn emit(app: &AppHandle, event: AppEvent) {
         .and_then(|v| v.get("payload").cloned())
         .map(|p| p.to_string());
 
-    if let Some(state) = app.try_state::<DbState>() {
-        if let Ok(conn) = state.0.lock() {
-            let now = chrono::Utc::now().to_rfc3339();
-            let _ = conn.execute(
-                "INSERT INTO project_events (project_id, event_type, payload, created_at) VALUES (?1, ?2, ?3, ?4)",
-                rusqlite::params![project_id, type_label, payload_json, now],
-            );
-        }
+    // A gravação roda em outra thread de propósito: muitos chamadores já
+    // seguram a trava do banco (DbState) quando chamam `emit`, e tentar
+    // pegar a mesma trava aqui, na mesma thread, trava o app para sempre
+    // (Mutex do Rust não é reentrante). Na thread separada a gravação só
+    // espera o chamador soltar a trava e então conclui.
+    {
+        let app_for_db = app.clone();
+        let type_label = type_label.to_string();
+        std::thread::spawn(move || {
+            if let Some(state) = app_for_db.try_state::<DbState>() {
+                if let Ok(conn) = state.0.lock() {
+                    let now = chrono::Utc::now().to_rfc3339();
+                    let _ = conn.execute(
+                        "INSERT INTO project_events (project_id, event_type, payload, created_at) VALUES (?1, ?2, ?3, ?4)",
+                        rusqlite::params![project_id, type_label, payload_json, now],
+                    );
+                }
+            }
+        });
     }
 
     if let Err(err) = app.emit(EVENT_CHANNEL, &event) {
