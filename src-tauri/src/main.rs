@@ -47,7 +47,7 @@ fn ensure_hidden_console() {
     unsafe {
         // Se o processo ja tem um console (build de debug, ou lancado a
         // partir de um terminal), nao faz nada.
-        if !GetConsoleWindow().is_null() {
+        if GetConsoleWindow() != 0 {
             return;
         }
         // AllocConsole cria um console novo e o anexa a este processo.
@@ -55,7 +55,7 @@ fn ensure_hidden_console() {
         // apenas ignora — nao e fatal, so reduz a chance do PTY funcionar.
         if AllocConsole() != 0 {
             let hwnd = GetConsoleWindow();
-            if !hwnd.is_null() {
+            if hwnd != 0 {
                 ShowWindow(hwnd, SW_HIDE);
             }
         }
