@@ -1,9 +1,22 @@
+import { useState } from "react";
 import { RefreshCw, ShieldAlert } from "lucide-react";
+import type { Project } from "@/types/project";
+import type { SecurityReport } from "@/types/securityReport";
+import type { ActiveAiSession } from "@/types/aiSessionState";
+import { ReportSummaryModal } from "@/components/Security/ReportSummaryModal";
+import { SendReportToAiModal } from "@/components/Security/SendReportToAiModal";
 import { useSecurityReports } from "@/hooks/useSecurityReports";
 import { SecurityReportCard } from "@/components/Security/SecurityReportCard";
 
-export function SecurityReportsView() {
+interface SecurityReportsViewProps {
+  projects: Project[];
+  onFixStarted: (project: Project, session: ActiveAiSession) => void;
+}
+
+export function SecurityReportsView({ projects, onFixStarted }: SecurityReportsViewProps) {
   const { reports, loading, error, remove, refresh } = useSecurityReports();
+  const [summaryFor, setSummaryFor] = useState<SecurityReport | null>(null);
+  const [fixFor, setFixFor] = useState<SecurityReport | null>(null);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -47,11 +60,26 @@ export function SecurityReportsView() {
         ) : (
           <div className="space-y-3">
             {reports.map((report) => (
-              <SecurityReportCard key={report.id} report={report} onDelete={remove} />
+              <SecurityReportCard
+                key={report.id}
+                report={report}
+                onDelete={remove}
+                onSummary={setSummaryFor}
+                onSendToAi={setFixFor}
+              />
             ))}
           </div>
         )}
       </div>
+      {summaryFor && <ReportSummaryModal report={summaryFor} onClose={() => setSummaryFor(null)} />}
+      {fixFor && (
+        <SendReportToAiModal
+          report={fixFor}
+          projects={projects}
+          onClose={() => setFixFor(null)}
+          onStarted={onFixStarted}
+        />
+      )}
     </div>
   );
 }

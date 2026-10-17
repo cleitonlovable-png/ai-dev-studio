@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Globe, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Globe, Send, Trash2 } from "lucide-react";
 import type { SecurityFinding, SecurityReport } from "@/types/securityReport";
 import { FindingItem } from "./FindingItem";
 
@@ -38,9 +38,11 @@ interface SecurityReportCardProps {
   report: SecurityReport;
   onDelete: (id: number) => void;
   onAnalyze?: (finding: SecurityFinding) => void;
+  onSummary?: (report: SecurityReport) => void;
+  onSendToAi?: (report: SecurityReport) => void;
 }
 
-export function SecurityReportCard({ report, onDelete, onAnalyze }: SecurityReportCardProps) {
+export function SecurityReportCard({ report, onDelete, onAnalyze, onSummary, onSendToAi }: SecurityReportCardProps) {
   const [expanded, setExpanded] = useState(false);
   const totalFindings = report.findings.length;
 
@@ -60,9 +62,29 @@ export function SecurityReportCard({ report, onDelete, onAnalyze }: SecurityRepo
             {SCAN_TYPE_LABEL[report.scanType] ?? report.scanType} · {formatDateTime(report.receivedAt)}
           </p>
         </div>
-        <button onClick={() => onDelete(report.id)} className="shrink-0 text-muted hover:text-danger">
-          <Trash2 size={14} />
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {onSummary && (
+            <button
+              onClick={() => onSummary(report)}
+              title="Explicar este relatório em linguagem simples"
+              className="flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-xs text-slate-200 hover:bg-base-800"
+            >
+              <FileText size={12} /> Resumo técnico
+            </button>
+          )}
+          {onSendToAi && (
+            <button
+              onClick={() => onSendToAi(report)}
+              title="Abrir uma IA no projeto para corrigir os problemas"
+              className="flex items-center gap-1.5 rounded-lg border border-accent px-2.5 py-1 text-xs text-accent hover:bg-accent/10"
+            >
+              <Send size={12} /> Enviar para correção
+            </button>
+          )}
+          <button onClick={() => onDelete(report.id)} title="Excluir relatório" className="text-muted hover:text-danger">
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
 
       <div className="mt-3 flex gap-1.5">

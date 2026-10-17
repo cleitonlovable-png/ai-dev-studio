@@ -83,7 +83,15 @@ export default function App() {
 
         <main className="flex min-w-0 flex-1 flex-col">
           {view === "security-reports" ? (
-            <SecurityReportsView />
+            <SecurityReportsView
+              projects={projects}
+              onFixStarted={(project, session) => {
+                selectProject(project.id);
+                setView("project");
+                setAiSession(session);
+                setFocusTerminalTick((t) => t + 1);
+              }}
+            />
           ) : view === "archived-projects" ? (
             <ArchivedProjectsView
               projects={projects}
