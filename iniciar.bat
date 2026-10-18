@@ -1,13 +1,13 @@
 @echo off
 REM ============================================================
-REM  iniciar.bat - inicia o AI Dev Studio automaticamente
+REM  iniciar.bat - inicia o CSC Studio automaticamente
 REM  Coloque este arquivo na RAIZ do projeto (ao lado do package.json)
 REM ============================================================
 
 cd /d "%~dp0"
 
 echo.
-echo ===== AI Dev Studio =====
+echo ===== CSC Studio =====
 echo Pasta: %cd%
 echo.
 
@@ -27,12 +27,12 @@ if not exist "node_modules" (
     echo.
 )
 
-echo [2/2] Iniciando o AI Dev Studio...
+echo [2/2] Iniciando o CSC Studio...
 echo       ^(a primeira vez compila o backend Rust do zero e demora mais^)
 echo.
 
 call npm run tauri dev
 
 echo.
-echo (AI Dev Studio encerrado)
+echo (CSC Studio encerrado)
 pause

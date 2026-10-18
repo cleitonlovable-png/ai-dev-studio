@@ -45,7 +45,7 @@ jobs:
           $json | ConvertTo-Json -Depth 20 | Set-Content $path -Encoding utf8
           "APP_VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Build do AI Dev Studio (.exe + instaladores)
+      - name: Build do CSC Studio (.exe + instaladores)
         shell: pwsh
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -126,7 +126,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "AI Dev Studio — build automatico"
+          name: "CSC Studio — build automatico"
           body: "Build automatico gerado pelo GitHub Actions a partir do commit ${{ github.sha }}."
           make_latest: true
           files: |

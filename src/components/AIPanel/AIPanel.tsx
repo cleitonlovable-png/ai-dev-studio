@@ -124,7 +124,7 @@ export function AIPanel({ project, onOpenTerminal, onStartAiSession }: AIPanelPr
 
       <div className="flex items-center gap-2 border-t border-border-subtle px-4 py-3 text-[11px] text-muted">
         <Cpu size={12} />
-        AI Dev Studio v0.1.0 (Fase 6)
+        CSC Studio
       </div>
 
       {pendingSnapshotConfirm && (

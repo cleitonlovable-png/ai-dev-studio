@@ -278,7 +278,7 @@ pub fn update_project(state: State<DbState>, input: UpdateProjectInput) -> Resul
     .map_err(|e| e.to_string())
 }
 
-/// Remove o registro do projeto do AI Dev Studio. IMPORTANTE: isso NUNCA
+/// Remove o registro do projeto do CSC Studio. IMPORTANTE: isso NUNCA
 /// mexe na pasta/arquivos do projeto no disco — apenas apaga as linhas do
 /// banco de dados. Como o banco roda com `foreign_keys = ON`, precisamos
 /// apagar manualmente TODAS as tabelas que referenciam este projeto antes

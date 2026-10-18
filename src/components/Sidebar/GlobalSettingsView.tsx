@@ -15,7 +15,7 @@ export function GlobalSettingsView() {
         <Settings size={18} className="text-accent" />
         <div>
           <h1 className="text-base font-semibold text-slate-100">Configurações</h1>
-          <p className="text-xs text-muted">Preferências gerais do AI Dev Studio.</p>
+          <p className="text-xs text-muted">Preferências gerais do CSC Studio.</p>
         </div>
       </div>
 

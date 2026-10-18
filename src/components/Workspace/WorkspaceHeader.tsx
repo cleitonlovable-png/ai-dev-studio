@@ -121,7 +121,7 @@ export function WorkspaceHeader({ project, onArchive, onDelete }: WorkspaceHeade
             <h2 className="text-base font-semibold text-slate-100">Excluir "{project.name}"?</h2>
             <p className="mt-2 text-sm text-slate-400">
               Isso remove o projeto e todos os dados ligados a ele (tarefas, memória, sessões,
-              backups, checks e relatórios) do AI Dev Studio.
+              backups, checks e relatórios) do CSC Studio.
               {project.path && (
                 <>
                   {" "}Os arquivos da pasta{" "}

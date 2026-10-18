@@ -2,7 +2,7 @@ use crate::database::DbState;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 
-/// Eventos internos do AI Dev Studio. Qualquer modulo (backup, IA,
+/// Eventos internos do CSC Studio. Qualquer modulo (backup, IA,
 /// quality, security...) emite um destes em vez de se comunicar
 /// diretamente com outro modulo. Cada evento vira uma linha em
 /// `project_events` (fonte da aba Timeline) E e mandado ao vivo para o

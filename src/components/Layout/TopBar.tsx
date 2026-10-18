@@ -29,7 +29,7 @@ export function TopBar({ onOpenSecurityReports }: TopBarProps) {
           <Brain size={18} className="text-accent" />
         </div>
         <div className="leading-tight">
-          <p className="text-sm font-semibold text-slate-100">AI Dev Studio</p>
+          <p className="text-sm font-semibold text-slate-100">CSC Studio</p>
           <p className="text-[10px] text-muted">Seus projetos. Suas IAs. Mais resultados.</p>
         </div>
       </div>

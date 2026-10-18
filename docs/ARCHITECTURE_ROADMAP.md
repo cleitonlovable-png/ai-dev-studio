@@ -1,9 +1,9 @@
-# AI Dev Studio — Arquitetura Expandida & Roadmap
+# CSC Studio — Arquitetura Expandida & Roadmap
 
 **Status:** documento de planejamento. Nada aqui foi implementado ainda —
 é a base para decidirmos juntos o que construir a seguir, fase por fase.
 
-**Princípio que não muda:** o projeto pertence ao AI Dev Studio, não à IA
+**Princípio que não muda:** o projeto pertence ao CSC Studio, não à IA
 usada no momento. Codex, Claude Code, Ollama, scanners de segurança e
 ferramentas de qualidade são todos **providers conectados**, plugáveis e
 substituíveis — nunca o centro da arquitetura.

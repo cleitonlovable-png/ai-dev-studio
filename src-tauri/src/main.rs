@@ -166,5 +166,5 @@ fn main() {
             commands::design_system::update_design_system,
         ])
         .run(tauri::generate_context!())
-        .expect("erro ao rodar a aplicacao AI Dev Studio");
+        .expect("erro ao rodar a aplicacao CSC Studio");
 }

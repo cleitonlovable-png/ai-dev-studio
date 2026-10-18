@@ -1,12 +1,12 @@
-# AI Dev Studio
+# CSC Studio
 
 Camada visual de gerenciamento de projetos de desenvolvimento — administra
 projetos, contexto, sessões, tarefas, Git, terminal e diferentes ferramentas
 de IA (Codex, Claude Code, Ollama) em um único app desktop.
 
-**Importante:** o AI Dev Studio não é outra IA e não substitui Codex/Claude
+**Importante:** o CSC Studio não é outra IA e não substitui Codex/Claude
 Code/Ollama. Ele é a camada que fica "por cima" deles — o projeto pertence
-ao AI Dev Studio, não à IA usada no momento.
+ao CSC Studio, não à IA usada no momento.
 
 Stack: **Tauri 2 + Rust + React + TypeScript + Vite + SQLite + Tailwind CSS**.
 
@@ -133,7 +133,7 @@ Isso vai:
 1. Subir o servidor Vite (frontend) em `http://localhost:1420`
 2. Compilar o backend Rust (primeira vez demora alguns minutos, baixa e
    compila todas as dependências)
-3. Abrir a janela do AI Dev Studio
+3. Abrir a janela do CSC Studio
 
 Se der erro de compilação Rust na primeira vez, me manda a mensagem
 completa do terminal que eu ajusto.
